@@ -12,8 +12,8 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "stonks-portfolio",
-      "database_id": "00000000-0000-4000-8000-000000000000",
+      "database_name": "stonks_d1",
+      "database_id": "4acec709-835b-40ab-acf9-4084b89f6cd4",
       "migrations_dir": "drizzle"
     }
   ],
