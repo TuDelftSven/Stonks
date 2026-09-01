@@ -63,17 +63,17 @@ export default function DashboardClient() {
     setError(null);
     try {
       const [me, files] = await Promise.all([
-        api<{ user: { email: string } }>("/api/me"),
-        api<{ imports: ImportRecord[] }>("/api/imports"),
+        api<{ user: { email: string } }>("/dashboard/api/me"),
+        api<{ imports: ImportRecord[] }>("/dashboard/api/imports"),
       ]);
       setUser(me.user);
       setImports(files.imports);
       if (files.imports.length === 3) {
-        const data = await api<Snapshot>("/api/portfolio");
+        const data = await api<Snapshot>("/dashboard/api/portfolio");
         setSnapshot(data);
         setMappings(data.mappings);
       } else {
-        const result = await api<{ instruments: Mapping[] }>("/api/mappings");
+        const result = await api<{ instruments: Mapping[] }>("/dashboard/api/mappings");
         setMappings(result.instruments);
         setSnapshot(null);
       }
@@ -93,7 +93,7 @@ export default function DashboardClient() {
     setBusy("market");
     setError(null);
     try {
-      const result = await api<{ symbols: number; discovered: Mapping[]; errors: Record<string, string> }>("/api/market/refresh", { method: "POST" });
+      const result = await api<{ symbols: number; discovered: Mapping[]; errors: Record<string, string> }>("/dashboard/api/market/refresh", { method: "POST" });
       setNotice(`Updated ${result.symbols} market series${result.discovered.length ? ` and found ${result.discovered.length} new symbol mappings` : ""}.`);
       await load();
     } catch (caught) {
@@ -113,7 +113,7 @@ export default function DashboardClient() {
     try {
       const body = new FormData();
       [...input.files].forEach((file) => body.append("files", file));
-      const result = await api<{ imported: Array<{ type: string }> }>("/api/imports", { method: "POST", body });
+      const result = await api<{ imported: Array<{ type: string }> }>("/dashboard/api/imports", { method: "POST", body });
       setNotice(`Imported ${result.imported.map((item) => item.type).join(", ")}.`);
       form.reset();
       await load();
@@ -128,7 +128,7 @@ export default function DashboardClient() {
     setBusy("mappings");
     setError(null);
     try {
-      await api("/api/mappings", {
+      await api("/dashboard/api/mappings", {
         method: "PUT",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ instruments: mappings.filter((item) => item.isin && item.currency && item.symbol) }),
@@ -146,7 +146,7 @@ export default function DashboardClient() {
     if (!window.confirm("Delete all uploaded DEGIRO files, mappings, and cached market prices for this account?")) return;
     setBusy("delete");
     try {
-      await api("/api/data", { method: "DELETE" });
+      await api("/dashboard/api/data", { method: "DELETE" });
       setNotice("All portfolio data for this account has been deleted.");
       await load();
       setTab("data");
@@ -162,7 +162,7 @@ export default function DashboardClient() {
     setError(null);
     try {
       const query = new URLSearchParams({ isin: item.isin, currency: item.currency, exchange: item.exchange });
-      setDetail(await api<InstrumentDetail>(`/api/instrument?${query}`));
+      setDetail(await api<InstrumentDetail>(`/dashboard/api/instrument?${query}`));
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Instrument history could not be loaded");
     } finally {
